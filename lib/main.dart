@@ -232,7 +232,7 @@ class MainPage extends StatelessWidget {
 class _Feature extends StatelessWidget {
   final IconData icon;
   final String title;
-  const _Feature({required this.icon, required this.title, super.key});
+  const _Feature({required this.icon, required this.title});
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -248,7 +248,7 @@ class _Feature extends StatelessWidget {
 /// Simple category chip (static)
 class _CategoryChip extends StatelessWidget {
   final String label;
-  const _CategoryChip({required this.label, super.key});
+  const _CategoryChip({required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -272,7 +272,6 @@ class _ProductCardStatic extends StatelessWidget {
     required this.title,
     required this.price,
     required this.image,
-    super.key,
   });
 
   @override
@@ -315,7 +314,7 @@ class _ProductCardStatic extends StatelessWidget {
 class _PromoTile extends StatelessWidget {
   final String image;
   final String label;
-  const _PromoTile({required this.image, required this.label, super.key});
+  const _PromoTile({required this.image, required this.label});
 
   @override
   Widget build(BuildContext context) {
