@@ -3,6 +3,10 @@ import dotenv from 'dotenv'
 import morgan from 'morgan'
 import cors from 'cors'
 
+//db
+import { sequelize } from './models/database.js';
+import { User, Product } from './models/associations.js';
+
 //router
 import authRouter from './Routes/authRoutes.js'
 import cartRouter from './Routes/cartRouter.js'
@@ -12,6 +16,12 @@ dotenv.config()
 
 //Entry point to backend
 const app = express()
+
+//db connection
+sequelize.sync({ force: false })
+  .then(() => console.log('Database synced'))
+  .catch(err => console.log('Sync error: ', err));
+
 
 //middlewares
 app.use(morgan())

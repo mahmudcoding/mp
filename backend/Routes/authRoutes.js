@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { validateUser } from "../middleware/user.validation.js";
 
 //Controllers
 import login from '../Controllers/authControllers/Login.js'
@@ -8,7 +9,7 @@ const authRouter = Router()
 
 //Auth
 authRouter.post('/login', login)
-authRouter.post('/signup', signup)
+authRouter.post('/signup', validateUser , signup)
 
 
 export default authRouter
