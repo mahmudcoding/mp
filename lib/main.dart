@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'pages/page1.dart';
 import 'pages/page2.dart';
-import 'pages/page3.dart';
+import 'pages/profile.dart';
+import 'pages/cart.dart';
+import 'pages/signup.dart';
 
 void main() {
   runApp(const MyApp());
@@ -175,7 +177,7 @@ class MainPage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    ElevatedButton(onPressed: () {}, child: const Text('Sign Up'))
+                    ElevatedButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Signup())), child: const Text('Sign Up'))
                   ],
                 ),
               ),
@@ -194,12 +196,16 @@ class MainPage extends StatelessWidget {
                     child: const Text('About'),
                   ),
                   TextButton(
+                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Cart())),
+                    child: const Text('Cart content'),
+                  ),
+                  TextButton(
                     onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Page2())),
                     child: const Text('Contact'),
                   ),
                   TextButton(
-                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Page3())),
-                    child: const Text('Terms'),
+                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Profile())),
+                    child: const Text('Profile'),
                   ),
                 ],
               ),
