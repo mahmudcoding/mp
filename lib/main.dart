@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'pages/page1.dart';
 import 'pages/page2.dart';
-import 'pages/page3.dart';
+import 'pages/profile.dart';
+import 'pages/cart.dart';
+import 'pages/signup.dart';
 
 void main() {
   runApp(const MyApp());
@@ -175,7 +177,7 @@ class MainPage extends StatelessWidget {
                         ],
                       ),
                     ),
-                    ElevatedButton(onPressed: () {}, child: const Text('Sign Up'))
+                    ElevatedButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Signup())), child: const Text('Sign Up'))
                   ],
                 ),
               ),
@@ -194,12 +196,16 @@ class MainPage extends StatelessWidget {
                     child: const Text('About'),
                   ),
                   TextButton(
+                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Cart())),
+                    child: const Text('Cart content'),
+                  ),
+                  TextButton(
                     onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Page2())),
                     child: const Text('Contact'),
                   ),
                   TextButton(
-                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Page3())),
-                    child: const Text('Terms'),
+                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => Profile())),
+                    child: const Text('Profile'),
                   ),
                 ],
               ),
@@ -232,7 +238,7 @@ class MainPage extends StatelessWidget {
 class _Feature extends StatelessWidget {
   final IconData icon;
   final String title;
-  const _Feature({required this.icon, required this.title, super.key});
+  const _Feature({required this.icon, required this.title});
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -248,7 +254,7 @@ class _Feature extends StatelessWidget {
 /// Simple category chip (static)
 class _CategoryChip extends StatelessWidget {
   final String label;
-  const _CategoryChip({required this.label, super.key});
+  const _CategoryChip({required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -272,7 +278,6 @@ class _ProductCardStatic extends StatelessWidget {
     required this.title,
     required this.price,
     required this.image,
-    super.key,
   });
 
   @override
@@ -315,7 +320,7 @@ class _ProductCardStatic extends StatelessWidget {
 class _PromoTile extends StatelessWidget {
   final String image;
   final String label;
-  const _PromoTile({required this.image, required this.label, super.key});
+  const _PromoTile({required this.image, required this.label});
 
   @override
   Widget build(BuildContext context) {
