@@ -3,13 +3,11 @@ import dotenv from 'dotenv'
 import morgan from 'morgan'
 import cors from 'cors'
 
-//db
-import { sequelize } from './models/database.js';
-import { User, Product } from './models/associations.js';
-
 //router
 import authRouter from './Routes/authRoutes.js'
 import cartRouter from './Routes/cartRouter.js'
+import profileRouter from './Routes/profileRouter.js'
+import homePageRouter from './Routes/HomePage.js'
 
 //Dotenv config - enables taking keys from .env file
 dotenv.config()
@@ -17,29 +15,27 @@ dotenv.config()
 //Entry point to backend
 const app = express()
 
-//db connection
-sequelize.sync({ force: false })
-  .then(() => console.log('Database synced'))
-  .catch(err => console.log('Sync error: ', err));
-
 
 //middlewares
 app.use(morgan('dev'))
 app.use(cors())
 app.use(express.json())
 
-//Endpoints
-app.use('/api/auth' , authRouter)
-app.use('/api/cart' , cartRouter)
+// Simple test endpoint
+app.get('/', (req, res) => {
+    res.json({ message: "Hello world" }); // Fixed: res.json() not res.message()
+})
 
-//app starts
-sequelize.sync()
-  .then(() => {
-    console.log('Database synced successfully!');
-    app.listen(3000, () => {
-      console.log('Server is running on http://localhost:3000');
-    });
-  })
-  .catch((err) => {
-    console.error('Error syncing database:', err);
-  });
+// Routes
+app.use('/api/auth', authRouter)
+app.use('/api/cart', cartRouter)
+app.use('/api/profile', profileRouter)
+app.use('/api/homePage', homePageRouter)
+
+const Port = 3001;
+
+app.listen(Port, '0.0.0.0', () => {
+    console.log(`Server is running on http://192.168.100.99:${Port}`);
+    console.log(`Also accessible on http://localhost:${Port}`);
+    console.log('✅ Server started successfully!');
+});
