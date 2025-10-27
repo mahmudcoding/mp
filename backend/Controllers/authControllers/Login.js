@@ -1,9 +1,15 @@
+// to get env var
+import dotenv from 'dotenv';
+dotenv.config();
+
 //database
-import User from '../../models/User.js'
-import {User as UserAssoc} from '../../models/associations.js'
+import { Database } from "@sqlitecloud/drivers";
+const connectionString = process.env.CONNECTION_STRING;
 
 //Json web token - Auth
 import jwt from 'jsonwebtoken'
+
+const db = new Database(connectionString);
 
 
 export default async function login(req, res) {
@@ -17,14 +23,11 @@ export default async function login(req, res) {
 
    try{
 
-    const existingUser = await UserAssoc.findOne({
-        where : {
-            email : email,
-            password : password
-        }
-    })
+    const existingUser = await db.sql(`
+            SELECT email FROM users`
+        )
 
-    if(!existingUser){
+    if(existingUser.email == email){
         return res.status(400).json({
             error : "invalid credentials"
         })
@@ -38,7 +41,7 @@ export default async function login(req, res) {
     )
 
     res.status(200).json({
-        messafe : "logged in successfully",
+        message : "logged in successfully",
         token  : token,
         user : {
             name : existingUser.name,
