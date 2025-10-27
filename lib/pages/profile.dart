@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -8,24 +11,130 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  final String userName = "John Doe"; // Replace with actual data
-  final String userEmail = "john.doe@example.com"; // Replace with actual data
-  final String userAvatar = "https://via.placeholder.com/80"; // Replace with actual image URL
-  final int ordersCount = 5; // Replace with actual data
-  final int swappedCount = 3; // Replace with actual data
-  final int itemsCount = 12; // Replace with actual data
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  
+  String userName = "Loading...";
+  String userEmail = "Loading...";
+  String userAvatar = "https://via.placeholder.com/80";
+  int ordersCount = 0;
+  int swappedCount = 0;
+  int itemsCount = 0;
+  bool isLoading = true;
+  String errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserProfile();
+  }
+
+  Future<void> _fetchUserProfile() async {
+    try {
+      // 1. Get token from secure storage
+      final String? token = await _secureStorage.read(key: 'auth_token');
+      
+      if (token == null) {
+        setState(() {
+          errorMessage = 'Not logged in';
+          isLoading = false;
+        });
+        return;
+      }
+
+      // 2. Make API request with token in header
+      final response = await http.get(
+        Uri.parse('http://192.168.100.99:3000/api/profile/info'), // Replace with your endpoint
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      // 3. Handle response
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+        final Map<String, dynamic> user = data['user'];
+        
+        setState(() {
+          userName = user['name'] ?? 'No Name';
+          userEmail = user['email'] ?? 'No Email';
+          userAvatar = user['avatar'] ?? 'http://via.placeholder.com/80';
+          ordersCount = user['ordersCount'] ?? 0;
+          swappedCount = user['swappedCount'] ?? 0;
+          itemsCount = user['itemsCount'] ?? 0;
+          isLoading = false;
+        });
+      } else {
+        final Map<String, dynamic> error = json.decode(response.body);
+        setState(() {
+          errorMessage = error['error'] ?? 'Failed to load profile';
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Network error: $e';
+        isLoading = false;
+      });
+    }
+  }
+
+  // Save token after login (call this after successful login)
+  Future<void> _saveToken(String token) async {
+    await _secureStorage.write(key: 'auth_token', value: token);
+  }
+
+  // Remove token on logout
+  Future<void> _logout() async {
+    await _secureStorage.delete(key: 'auth_token');
+    // Navigate to login screen
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (errorMessage.isNotEmpty) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Error: $errorMessage'),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _fetchUserProfile,
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
-      
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: _logout,
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Profile Header with actual data
+            // Profile Header
             Row(
               children: [
                 Container(
@@ -72,7 +181,7 @@ class _ProfileState extends State<Profile> {
             ),
             const SizedBox(height: 32),
             
-            // Stats with actual data
+            // Stats
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -90,9 +199,6 @@ class _ProfileState extends State<Profile> {
               ),
             ),
             const SizedBox(height: 32),
-            
-            // Rest of the navigation items...
-            //_buildNavigationItems(),
           ],
         ),
       ),
@@ -125,6 +231,4 @@ class _ProfileState extends State<Profile> {
   void _editProfile() {
     // Navigate to edit profile page
   }
-
-  // ... include the _buildNavigationItems and _handleMenuItemTap methods from above
 }
