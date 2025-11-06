@@ -44,13 +44,12 @@ class _MainPageState extends State<MainPage> {
     Cart(),
   ];
 
-    final storage = FlutterSecureStorage();
-
+  final storage = FlutterSecureStorage();
 
   void _onProfileTap() async {
     // Check if user is logged in
     final token = await storage.read(key: 'auth_token');
-    
+
     if (token != null && token.isNotEmpty) {
       // User is logged in - navigate to profile page
       setState(() {
@@ -69,7 +68,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       // Top bar - only show on home page
-      appBar: _currentIndex == 0 
+      appBar: _currentIndex == 0
           ? AppBar(
               title: const Text('Student Shop'),
               centerTitle: true,
@@ -77,9 +76,7 @@ class _MainPageState extends State<MainPage> {
             )
           : null,
 
-     body: _currentIndex == 3 
-          ? const Profile() 
-          : _pages[_currentIndex],
+      body: _currentIndex == 3 ? const Profile() : _pages[_currentIndex],
 
       // Bottom Navigation Bar
       bottomNavigationBar: Container(
@@ -154,7 +151,8 @@ class HomeContent extends StatelessWidget {
             decoration: const BoxDecoration(
               image: DecorationImage(
                 fit: BoxFit.cover,
-                image: NetworkImage('https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?ixlib=rb-4.0.3&q=80&w=1400&auto=format&fit=crop'),
+                image: NetworkImage(
+                    'https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?ixlib=rb-4.0.3&q=80&w=1400&auto=format&fit=crop'),
               ),
             ),
             child: Container(
@@ -220,22 +218,26 @@ class HomeContent extends StatelessWidget {
                 _ProductCardStatic(
                   title: 'Running Sneakers',
                   price: '59.99',
-                  image: 'https://cdn-icons-png.flaticon.com/512/2972/2972185.png',
+                  image:
+                      'https://cdn-icons-png.flaticon.com/512/2972/2972185.png',
                 ),
                 _ProductCardStatic(
                   title: 'Classic Backpack',
                   price: '39.50',
-                  image: 'https://cdn-icons-png.flaticon.com/512/107/107831.png',
+                  image:
+                      'https://cdn-icons-png.flaticon.com/512/107/107831.png',
                 ),
                 _ProductCardStatic(
                   title: 'Wireless Headphones',
                   price: '79.99',
-                  image: 'https://cdn-icons-png.flaticon.com/512/3107/3107988.png',
+                  image:
+                      'https://cdn-icons-png.flaticon.com/512/3107/3107988.png',
                 ),
                 _ProductCardStatic(
                   title: 'Casual T-Shirt',
                   price: '15.00',
-                  image: 'https://cdn-icons-png.flaticon.com/512/2985/2985176.png',
+                  image:
+                      'https://cdn-icons-png.flaticon.com/512/2985/2985176.png',
                 ),
               ],
             ),
@@ -250,9 +252,18 @@ class HomeContent extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.symmetric(horizontal: 12),
               children: [
-                _PromoTile(image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop', label: 'Summer Sale'),
-                _PromoTile(image: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=800&auto=format&fit=crop', label: 'New Arrivals'),
-                _PromoTile(image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=800&auto=format&fit=crop', label: 'Gifts'),
+                _PromoTile(
+                    image:
+                        'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=800&auto=format&fit=crop',
+                    label: 'Summer Sale'),
+                _PromoTile(
+                    image:
+                        'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?q=80&w=800&auto=format&fit=crop',
+                    label: 'New Arrivals'),
+                _PromoTile(
+                    image:
+                        'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=800&auto=format&fit=crop',
+                    label: 'Gifts'),
               ],
             ),
           ),
@@ -313,7 +324,8 @@ class _ProductCardStatic extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: (MediaQuery.of(context).size.width - 48) / 2, // two columns spacing
+      width:
+          (MediaQuery.of(context).size.width - 48) / 2, // two columns spacing
       child: Card(
         elevation: 3,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -326,9 +338,13 @@ class _ProductCardStatic extends StatelessWidget {
                 child: Image.network(image, fit: BoxFit.contain),
               ),
               const SizedBox(height: 8),
-              Text(title, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w600)),
+              Text(title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 6),
-              Text('\$$price', style: const TextStyle(color: Colors.deepPurple, fontWeight: FontWeight.bold)),
+              Text('\$$price',
+                  style: const TextStyle(
+                      color: Colors.deepPurple, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -364,8 +380,15 @@ class _PromoTile extends StatelessWidget {
       child: Container(
         alignment: Alignment.bottomLeft,
         padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), gradient: LinearGradient(colors: [Colors.black.withOpacity(0.0), Colors.black.withOpacity(0.45)], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
-        child: Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            gradient: LinearGradient(colors: [
+              Colors.black.withOpacity(0.0),
+              Colors.black.withOpacity(0.45)
+            ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+        child: Text(label,
+            style: const TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold)),
       ),
     );
   }

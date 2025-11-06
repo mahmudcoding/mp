@@ -35,7 +35,7 @@ class _SignupState extends State<Signup> {
   });
 
   try {
-    final String apiUrl = 'http://localhost:3000/api/auth/login';
+    final String apiUrl = 'http://localhost:3001/api/auth/login';
     
     Map<String, dynamic> requestBody = {
       'name': name,
@@ -59,11 +59,9 @@ class _SignupState extends State<Signup> {
         // Save token to secure storage
         await storage.write(key: 'auth_token', value: token);
         _showSnackBar('Login successful!');
-        print('Token saved: $token');
         
-        // Navigate after saving token
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          Navigator.pushReplacement(
+          Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => Profile())
           );
@@ -100,7 +98,7 @@ class _SignupState extends State<Signup> {
     });
 
     try {
-      final String apiUrl = 'http://localhost:3000/api/auth/signup';
+      final String apiUrl = 'http://localhost:3001/api/auth/signup';
 
       Map<String, dynamic> requestBody = {
         'name': name, // Include the name in the signup request
