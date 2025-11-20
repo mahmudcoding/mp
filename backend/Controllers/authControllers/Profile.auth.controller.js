@@ -1,7 +1,13 @@
 import jwt from 'jsonwebtoken'
 
+import { Database } from "@sqlitecloud/drivers";
+const connectionString = process.env.CONNECTION_STRING;
+
+const db = new Database(connectionString);
+
 export default async function Profile (req ,res) {
     try{
+      await db.sql(`USE DATABASE Swapify`);
         //get the token
         const authHeader = req.headers.authorization;
 
@@ -14,6 +20,10 @@ export default async function Profile (req ,res) {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const userId = decoded.userID;
       const userEmail = decoded.email;
+
+      const dbInfo = await db.sql(
+            `SELECT name FROM users WHERE LOWER(email) = LOWER('${userEmail}')`
+        );
     
 
     const userName = dbInfo.name

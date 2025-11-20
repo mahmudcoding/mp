@@ -70,7 +70,7 @@ class _SignupState extends State<Signup> {
     });
 
     try {
-      final String apiUrl = 'http://192.168.100.99:3000/api/auth/signup';
+      final String apiUrl = 'http://localhost:3001/api/auth/signup';
       print('🔗 URL: $apiUrl');
 
       final requestBody = {
@@ -87,7 +87,7 @@ class _SignupState extends State<Signup> {
         body: json.encode(requestBody),
       ).timeout(Duration(seconds: 10));
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 ) {
         _showSnackBar('Signup successful!');
         final responseData = json.decode(response.body);
         final token = responseData['token'];

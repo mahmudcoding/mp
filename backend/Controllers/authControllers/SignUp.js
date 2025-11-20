@@ -68,7 +68,7 @@ export default async function signup(req, res) {
                     { expiresIn: "30m" }
                 );
 
-                return res.status(201).json({
+                return res.status(200).json({
                     message: "User created successfully",
                     token: token,
                     user: {

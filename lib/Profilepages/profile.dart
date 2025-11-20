@@ -43,7 +43,7 @@ class _ProfileState extends State<Profile> {
 
       // 2. Make API request with token in header
       final response = await http.get(
-        Uri.parse('http://192.168.100.99:3000/api/profile/info'), // Replace with your endpoint
+        Uri.parse('http://localhost:3001/api/profile/products'), // Replace with your endpoint
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
