@@ -3,8 +3,8 @@ import { Router } from "express";
 //controller
 import Profile from "../Controllers/authControllers/Profile.auth.controller.js";
 
-const profileRouter = Router()
+const personalData = Router()
 
-profileRouter.get('/products', Profile)
+personalData.get('/products', Profile)
 
-export default profileRouter
+export default personalData

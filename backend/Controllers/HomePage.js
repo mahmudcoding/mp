@@ -83,8 +83,5 @@ export default async function homePage(req , res) {
                 owner_email : product8.owner_email
             },
         }
-
     })
-
-
 }

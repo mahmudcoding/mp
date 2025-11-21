@@ -21,21 +21,26 @@ export default async function login(req, res) {
     });
   }
 
+    await db.sql(`USE DATABASE Swapify`)
+
    try{
 
     const existingUser = await db.sql(`
-            SELECT email FROM users`
+            SELECT userId, email, name FROM Users WHERE email = '${email}'`
         )
 
-    if(existingUser.email == email){
-        return res.status(400).json({
-            error : "invalid credentials"
-        })
+    console.log(existingUser)
+
+    if(existingUser.length == 0){
+         return res.status(400).json({
+                error : "invalid credentials"
+            })
     }
 
+    const firstRow = existingUser[0]
 
     const token = jwt.sign(
-        {userID : existingUser.id , email : existingUser.email},
+        {userID : firstRow.userId , email : firstRow.email},
         process.env.JWT_SECRET,
         {expiresIn: "7d"}
     )
@@ -44,8 +49,8 @@ export default async function login(req, res) {
         message : "logged in successfully",
         token  : token,
         user : {
-            name : existingUser.name,
-            email : existingUser.email
+            name : firstRow.name,
+            email : firstRow.email
         }
     })
 
