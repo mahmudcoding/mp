@@ -2,7 +2,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'profile.dart';
+import '../Profilepages/profile.dart';
 
 class Signup extends StatefulWidget {
   @override
@@ -10,221 +10,192 @@ class Signup extends StatefulWidget {
 }
 
 class _SignupState extends State<Signup> {
-  // Controllers to get text from TextFields
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
   final storage = FlutterSecureStorage();
-  
-  // Loading state
   bool _isLoading = false;
 
-  // Login function
+  // ==========================
+  // LOGIN
+  // ==========================
   Future<void> _login() async {
-  String name = _nameController.text;
-  String email = _emailController.text;
-  String password = _passwordController.text;
+    String email = _emailController.text.trim();
+    String password = _passwordController.text.trim();
 
-  if (email.isEmpty || password.isEmpty) {
-    _showSnackBar('Please fill in all fields');
-    return;
-  }
-
-  setState(() {
-    _isLoading = true;
-  });
-
-  try {
-    final String apiUrl = 'http://localhost:3001/api/auth/login';
-    
-    Map<String, dynamic> requestBody = {
-      'name': name,
-      'email': email,
-      'password': password,
-    };
-
-    final response = await http.post(
-      Uri.parse(apiUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: json.encode(requestBody),
-    );
-
-    if (response.statusCode == 200) {
-      Map<String, dynamic> responseData = json.decode(response.body);
-      
-      // Extract token from response
-      final token = responseData['token'];
-      
-      if (token != null && token.isNotEmpty) {
-        // Save token to secure storage
-        await storage.write(key: 'auth_token', value: token);
-        _showSnackBar('Login successful!');
-        
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => Profile())
-          );
-        });
-      } else {
-        _showSnackBar('Login failed: No token received');
-      }
-    } else {
-      Map<String, dynamic> errorData = json.decode(response.body);
-      _showSnackBar('Login failed: ${errorData['message']}');
+    if (email.isEmpty || password.isEmpty) {
+      _showSnackBar('Please fill in all fields');
+      return;
     }
-  } catch (e) {
-    _showSnackBar('Error: $e');
-  } finally {
-    setState(() {
-      _isLoading = false;
-    });
-  }
-}
 
-  // Signup function (similar to login)
+    setState(() => _isLoading = true);
+
+    try {
+      const apiUrl = 'http://localhost:3001/api/auth/login';
+
+      Map<String, dynamic> requestBody = {
+        'email': email,
+        'password': password,
+      };
+
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final token = responseData['token'];
+
+        if (token != null) {
+          await storage.write(key: 'auth_token', value: token);
+          _showSnackBar('Login successful!');
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => Profile()),
+          );
+        } else {
+          _showSnackBar('Login failed: No token received');
+        }
+      } else {
+        final errorData = jsonDecode(response.body);
+        _showSnackBar('Login failed: ${errorData['message']}');
+      }
+    } catch (e) {
+      _showSnackBar('Error: $e');
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  // ==========================
+  // SIGNUP
+  // ==========================
   Future<void> _signup() async {
-    String name = _nameController.text;
-    String email = _emailController.text;
-    String password = _passwordController.text;
+    String name = _nameController.text.trim();
+    String email = _emailController.text.trim();
+    String password = _passwordController.text.trim();
 
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
       _showSnackBar('Please fill in all fields');
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
-      final String apiUrl = 'http://localhost:3001/api/auth/signup';
+      const apiUrl = 'http://localhost:3001/api/auth/signup';
 
       Map<String, dynamic> requestBody = {
-        'name': name, // Include the name in the signup request
+        'name': name,
         'email': email,
         'password': password,
       };
 
       final response = await http.post(
-          Uri.parse(apiUrl),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode(requestBody),
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(requestBody),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final token = responseData['token'];
+
+        await storage.write(key: 'auth_token', value: token);
+
+        _showSnackBar('Signup successful!');
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => Profile()),
         );
-
-        if (response.statusCode == 200) {
-          _showSnackBar('Signup successful!');
-
-          // Decode the response body (which is a JSON string)
-          final responseData = json.decode(response.body);
-
-          final token = responseData['token'];
-
-          final tokenSaved = await storage.write(key: 'auth_token', value: token);
-
-          print("Navigating to ProfilePage...");
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => Profile())
-          );
-        });
-        } else {
-          Map<String, dynamic> errorData = json.decode(response.body);
-          _showSnackBar('Signup failed: ${errorData['message']}');
-        }
-
+      } else {
+        final errorData = jsonDecode(response.body);
+        _showSnackBar('Signup failed: ${errorData['message']}');
+      }
     } catch (e) {
       _showSnackBar('Error: $e');
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
     }
   }
 
-  // Helper function to show messages
+  // Snackbar helper
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: Duration(seconds: 3),
-      ),
+      SnackBar(content: Text(message), duration: Duration(seconds: 3)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Signup/Login'),
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Name Field
-              TextField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Name',
-                ),
+      appBar: AppBar(title: Text('Signup / Login')),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          children: [
+            // Name
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Name (only for Signup)',
               ),
-              SizedBox(height: 16),
-              
-              // Username Field
-              TextField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Email',
-                ),
+            ),
+            SizedBox(height: 16),
+
+            // Email
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Email',
               ),
-              SizedBox(height: 16),
-              
-              // Password Field
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'Password',
-                ),
+            ),
+            SizedBox(height: 16),
+
+            // Password
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(),
+                labelText: 'Password',
               ),
-              SizedBox(height: 16),
-              
-              // Login Button
-              ElevatedButton(
-                onPressed: _isLoading ? null : _login,
-                child: _isLoading 
-                    ? SizedBox(
-                        height: 20,
-                        width: 40,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                        ),
-                      )
-                    : Text('Login'),
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.all(15),
+            ),
+            SizedBox(height: 20),
+
+            // Login Button
+            ElevatedButton(
+              onPressed: _isLoading ? null : _login,
+              style: ElevatedButton.styleFrom(padding: EdgeInsets.all(15)),
+              child: _isLoading
+                  ? SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor:
+                  AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
-              ),
-              SizedBox(height: 16),
-              
-              // Signup Button
-              OutlinedButton(
-                onPressed: _isLoading ? null : _signup,
-                child: Text('Sign Up'),
-                style: OutlinedButton.styleFrom(
-                  padding: EdgeInsets.all(15),
-                ),
-              ),
-            ],
-          ),
+              )
+                  : Text('Login'),
+            ),
+
+            SizedBox(height: 16),
+
+            // Signup Button
+            OutlinedButton(
+              onPressed: _isLoading ? null : _signup,
+              style: OutlinedButton.styleFrom(padding: EdgeInsets.all(15)),
+              child: Text('Sign Up'),
+            ),
+          ],
         ),
       ),
     );
