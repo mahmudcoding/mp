@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'pages/search.dart';
-import 'pages/profile.dart';
+import 'Profilepages/profile.dart';
 import 'pages/cart.dart';
-import 'pages/signup.dart';
+import 'Profilepages/signup.dart';
 
 //storage to check token [AUTH specific]
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
