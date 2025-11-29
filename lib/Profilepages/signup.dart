@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io'; // Add this import for SocketException
 import 'dart:convert';
-import 'profile.dart';
+import '/pages/profile.dart';
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
