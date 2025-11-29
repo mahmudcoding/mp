@@ -5,6 +5,8 @@ import 'dart:convert';
 import '../Profilepages/profile.dart';
 
 class Signup extends StatefulWidget {
+  const Signup({super.key});
+
   @override
   _SignupState createState() => _SignupState();
 }
@@ -167,35 +169,37 @@ class _SignupState extends State<Signup> {
                 border: OutlineInputBorder(),
                 labelText: 'Password',
               ),
-            ),
-            SizedBox(height: 20),
-
-            // Login Button
-            ElevatedButton(
-              onPressed: _isLoading ? null : _login,
-              style: ElevatedButton.styleFrom(padding: EdgeInsets.all(15)),
-              child: _isLoading
-                  ? SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor:
-                  AlwaysStoppedAnimation<Color>(Colors.white),
+              SizedBox(height: 16),
+              
+              // Login Button
+              ElevatedButton(
+                onPressed: _isLoading ? null : _login,
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.all(15),
                 ),
-              )
-                  : Text('Login'),
-            ),
-
-            SizedBox(height: 16),
-
-            // Signup Button
-            OutlinedButton(
-              onPressed: _isLoading ? null : _signup,
-              style: OutlinedButton.styleFrom(padding: EdgeInsets.all(15)),
-              child: Text('Sign Up'),
-            ),
-          ],
+                child: _isLoading 
+                    ? SizedBox(
+                        height: 20,
+                        width: 40,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      )
+                    : Text('Login'),
+              ),
+              SizedBox(height: 16),
+              
+              // Signup Button
+              OutlinedButton(
+                onPressed: _isLoading ? null : _signup,
+                style: OutlinedButton.styleFrom(
+                  padding: EdgeInsets.all(15),
+                ),
+                child: Text('Sign Up'),
+              ),
+            ],
+          ),
         ),
       ),
     );

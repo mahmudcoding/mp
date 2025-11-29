@@ -6,6 +6,8 @@ import 'dart:convert';
 import 'profile.dart';
 
 class Signup extends StatefulWidget {
+  const Signup({super.key});
+
   @override
   _SignupState createState() => _SignupState();
 }
@@ -246,6 +248,9 @@ class _SignupState extends State<Signup> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _login,
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.all(16),
+                ),
                 child: _isLoading 
                     ? SizedBox(
                         height: 20,
@@ -256,9 +261,6 @@ class _SignupState extends State<Signup> {
                         ),
                       )
                     : Text('Login'),
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.all(16),
-                ),
               ),
             ),
             SizedBox(height: 12),
@@ -267,10 +269,10 @@ class _SignupState extends State<Signup> {
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: _isLoading ? null : _signup,
-                child: Text('Sign Up'),
                 style: OutlinedButton.styleFrom(
                   padding: EdgeInsets.all(16),
                 ),
+                child: Text('Sign Up'),
               ),
             ),
             SizedBox(height: 20),

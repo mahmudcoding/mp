@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../main.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../main.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -13,9 +13,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   Map<String, dynamic> userData = {};
-
-  bool isLoading = true;            // FIX
-  String errorMessage = '';         // FIX
+  bool loading = true; // Use 'loading' instead of 'isLoading'
   int _selectedTab = 0;
 
   @override
@@ -29,8 +27,7 @@ class _ProfileState extends State<Profile> {
   // =======================
   Future<void> _fetchUserProfile() async {
     setState(() {
-      isLoading = true;
-      errorMessage = '';
+      loading = true;
     });
 
     try {
@@ -52,16 +49,35 @@ class _ProfileState extends State<Profile> {
       if (response.statusCode == 200) {
         setState(() {
           userData = jsonDecode(response.body);
-          isLoading = false;
+          loading = false;
         });
       } else {
-        throw Exception("Server error: ${response.statusCode}");
+        // FIX: Handle specific status codes if needed, or assume any non-200 is a failure
+        String errorMessage =
+            "Failed to load profile. Status: ${response.statusCode}";
+        if (response.statusCode == 401) {
+          errorMessage = "Authentication failed. Please log in again.";
+        } else if (response.statusCode == 404) {
+          errorMessage = "User data not found.";
+        }
+
+        print(errorMessage); // Log the specific error
+
+        // Set loading to false so the UI doesn't hang on a spinner
+        setState(() {
+          loading = false;
+        });
       }
     } catch (e) {
-      setState(() {
-        isLoading = false;
-        errorMessage = e.toString();   // FIX
-      });
+      {
+        // Handle network or other exceptions
+        print("Error loading products: $e");
+        setState(() {
+          // Here, 'loading' is set to false, which will allow the UI to display the profile structure
+          // If userData remains empty, it will show "No items yet" in the Own Items tab.
+          loading = false;
+        });
+      }
     }
   }
 
@@ -99,24 +115,28 @@ class _ProfileState extends State<Profile> {
   }
 
   Widget _buildCurrentContent() {
+    // Safely check for 'products' key and if it's a non-empty list
+    List? products = userData['products'] as List?;
+    bool hasProducts = products != null && products.isNotEmpty;
+
     switch (_selectedTab) {
       case 0:
         return Center(child: Text('Bought Items will appear here'));
       case 1:
         return Center(child: Text('Swapped Items will appear here'));
-      case 2:
-        return userData['products'] != null && userData['products'].length > 0
+      case 2: // Own Items
+        return hasProducts
             ? ListView.builder(
-          itemCount: userData['products'].length,
-          itemBuilder: (context, index) {
-            var product = userData['products'][index];
-            return ListTile(
-              leading: Icon(Icons.shopping_bag),
-              title: Text(product['product_name']),
-              subtitle: Text('\$${product['price']}'),
-            );
-          },
-        )
+                itemCount: products.length,
+                itemBuilder: (context, index) {
+                  var product = products[index];
+                  return ListTile(
+                    leading: Icon(Icons.shopping_bag),
+                    title: Text(product['product_name']),
+                    subtitle: Text('\$${product['price']}'),
+                  );
+                },
+              )
             : Center(child: Text('No items yet'));
       default:
         return Center(child: Text('Select a tab'));
@@ -125,35 +145,18 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
+    // FIX 1: Use the defined variable 'loading' instead of 'isLoading'
+    if (loading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (errorMessage.isNotEmpty) {
-      return Scaffold(
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('Error: $errorMessage'),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _fetchUserProfile,
-                child: Text('Retry'),
-              ),
-            ],
-          ),
-        ),
       );
     }
 
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _btnPressed,
-        icon: Icon(Icons.add),
         label: Text('Upload Product'),
+        icon: Icon(Icons.add),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       appBar: AppBar(
@@ -166,89 +169,95 @@ class _ProfileState extends State<Profile> {
         title: Text('Profile'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // =======================
-            // Profile Header
-            // =======================
-            Row(
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: CircleAvatar(
-                    backgroundColor: Colors.greenAccent,
-                    child: Text('BO'),
+        padding: const EdgeInsets.all(16.0),
+        child: loading
+            ? Center(child: CircularProgressIndicator())
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  // 1. Profile Info Row (with CircleAvatar, Name/Email, and Logout Button)
+                  Row(
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: CircleAvatar(
+                          backgroundColor: Colors.greenAccent,
+                          // Safely access user data
+                          child: Text(userData['user']?['name'] != null
+                              ? userData['user']['name'][0]
+                              : 'U'),
+                        ),
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Safely access user data
+                          Text(userData['user']?['name'] ?? 'Loading Name...',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              )),
+                          Text(
+                            // Safely access user data
+                            userData['user']?['email'] ?? 'Loading Email...',
+                            style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          )
+                        ],
+                      ),
+                      Spacer(),
+                      TextButton(
+                        onPressed: () async {
+                          final storage = FlutterSecureStorage();
+                          await storage.deleteAll();
+                          // Navigate to login or home page
+                          Navigator.pushReplacement(context,
+                              MaterialPageRoute(builder: (_) => MainPage()));
+                          _showSnackBar("Logout Successful!");
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.red,
+                          padding:
+                              EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          'Logout',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      )
+                    ],
                   ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      userData['user']['name'],
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                    ),
-                    Text(
-                      userData['user']['email'],
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
-                Spacer(),
-                TextButton(
-                  onPressed: () async {
-                    final storage = FlutterSecureStorage();
-                    await storage.deleteAll();
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => MainPage()),
-                    );
-                    _showSnackBar("Logout Successful!");
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    backgroundColor: Colors.red,
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    'Logout',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
+                  
+                  SizedBox(height: 20),
 
-            SizedBox(height: 20),
-
-            // =======================
-            // Nav Tabs
-            // =======================
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey.shade300),
-              ),
-              child: Row(
-                children: [
-                  _buildNavItem('Bought', 0),
-                  _buildNavItem('Swapped', 1),
-                  _buildNavItem('Own Items', 2),
+                  // 2. Navigation Tabs Row
+                  Row(
+                    children: [
+                      _buildNavItem('Bought', 0),
+                      SizedBox(width: 8),
+                      _buildNavItem('Swapped', 1),
+                      SizedBox(width: 8),
+                      _buildNavItem('Own Items', 2),
+                    ],
+                  ),
+                  
+                  SizedBox(height: 16),
+                  
+                  // 3. Content area
+                  Expanded(
+                    child: _buildCurrentContent(),
+                  ),
                 ],
               ),
-            ),
-
-            SizedBox(height: 16),
-
-            // =======================
-            // Content Area
-            // =======================
-            Expanded(child: _buildCurrentContent()),
-          ],
-        ),
       ),
     );
   }

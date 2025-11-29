@@ -5,10 +5,9 @@ import cors from 'cors'
 
 //router
 import authRouter from './Routes/authRoutes.js'
-import cartRouter from './Routes/cartRouter.js'
 import profileRouter from './Routes/personalData.js'
-import homePageRouter from './Routes/HomePage.js'
 import itemsRoute from './Routes/itemsRouter.js'
+import cartRouter from './Routes/cartRouter.js'
 
 //Dotenv config - enables taking keys from .env file
 dotenv.config()
@@ -31,7 +30,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRouter)
 app.use('/api/cart', cartRouter)
 app.use('/api/profile', profileRouter)
-app.use('/api/homePage', homePageRouter)
+//app.use('/api/homePage', homePageRouter)
 app.use('/api/items', itemsRoute)
 
 const Port = 3001;
