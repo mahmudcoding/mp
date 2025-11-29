@@ -33,9 +33,9 @@ class _SignupState extends State<Signup> {
   // Test server connection
   Future<void> testServerConnection() async {
     try {
-      print('🧪 Testing server connection...');
+      print('🧪 Testing server connection...'); 
       final response = await http.get(
-        Uri.parse('http://192.168.100.99:3000'),
+        Uri.parse('http://localhost:3001/api/auth/login'),
       ).timeout(Duration(seconds: 5));
       
       print('✅ Server is reachable! Status: ${response.statusCode}');
@@ -148,7 +148,7 @@ class _SignupState extends State<Signup> {
     });
 
     try {
-      final String apiUrl = 'http://192.168.100.99:3000/api/auth/login';
+      final String apiUrl = 'http://localhost:3001/api/auth/login';
       print('🔗 URL: $apiUrl');
       
       Map<String, dynamic> requestBody = {

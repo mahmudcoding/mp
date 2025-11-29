@@ -28,10 +28,10 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api/auth', authRouter)
-app.use('/api/cart', cartRouter)
+app.use('/cart', cartRouter)
 app.use('/api/profile', profileRouter)
 //app.use('/api/homePage', homePageRouter)
-app.use('/api/items', itemsRoute)
+app.use('/products', itemsRoute)
 
 const Port = 3001;
 

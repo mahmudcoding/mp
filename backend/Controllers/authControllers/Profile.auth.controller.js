@@ -38,7 +38,6 @@ export default async function Profile(req, res) {
             `SELECT name from Users WHERE userId = '${userId}'`
         );
 
-        // FIX 2: Extract the actual name string from the result array
         const userName = userNameResult.length > 0 ? userNameResult[0].name : null;
 
 
@@ -49,7 +48,6 @@ export default async function Profile(req, res) {
         // FIX 5: Change the response structure to match what Flutter expects (user object)
         res.status(200).json({
             success: true, 
-            // Return data inside a 'user' object for Flutter consistency
             user: { 
                 name: userName,
                 email: userEmail

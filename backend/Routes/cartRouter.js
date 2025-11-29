@@ -2,7 +2,6 @@ import { Router } from "express";
 import { Database } from '@sqlitecloud/drivers';
 import jwt from 'jsonwebtoken'; 
 
-// NOTE: Ensure process.env.CONNECTION_STRING and process.env.JWT_SECRET are set.
 const connectionString = process.env.CONNECTION_STRING; 
 
 const cartRouter = Router();
@@ -13,7 +12,7 @@ const connectAndAuth = async (req, res, next) => {
     // 1. Establish DB connection for this request
     const db = new Database(connectionString);
     req.db = db; // Attach the DB connection to the request object
-    
+
     try {
         await db.sql("USE DATABASE Swapify");
         
@@ -57,13 +56,10 @@ const closeDb = async (req, res, next) => {
 };
 
 // Apply the common connection/auth logic to all cart routes
-cartRouter.use(connectAndAuth);
-// Apply the close logic after the request is handled
-cartRouter.use(closeDb);
-
+cartRouter.use(connectAndAuth)
 
 // =========================================================
-// POST /add - ADD ITEM TO CART (Lazy Creation)
+// POST /cart/add - ADD ITEM TO CART (Lazy Creation)
 // =========================================================
 cartRouter.post('/add', async (req, res) => {
     const db = req.db;
@@ -103,6 +99,7 @@ cartRouter.post('/add', async (req, res) => {
         await db.sql(insertItemSql);
 
         return res.status(200).json({ 
+            success: true,
             message: `Product ID ${productId} added/incremented in cart ${cartId}.`,
             cartId: cartId 
         });
@@ -120,14 +117,14 @@ cartRouter.post('/add', async (req, res) => {
 // =========================================================
 // DELETE /remove - REMOVE ITEM FROM CART
 // =========================================================
-cartRouter.delete('/remove/:productId', async (req, res) => {
+cartRouter.delete('/delete/:productId', async (req, res) => {
     const db = req.db;
     const userId = req.userId;
-    const { productId } = req.params; 
+    const { productId } = req.params;
 
     try {
         if (!productId) {
-            return res.status(400).json({ error: 'Product ID is required in the URL parameter.' });
+            return res.status(400).json({ message: 'Product ID is required in the URL parameter.' });
         }
         
         // 1. Retrieve the Cart ID
@@ -148,17 +145,9 @@ cartRouter.delete('/remove/:productId', async (req, res) => {
         const deleteResult = await db.sql(deleteItemSql);
 
         // NOTE: In SQLite, there is no direct way to get rows affected easily in this driver context.
-        // We assume the deletion was successful if no error occurred.
-
-        // 3. Update Cart Timestamp
-        const updateCartSql = `
-            UPDATE Carts 
-            SET updated_at = datetime('now') 
-            WHERE cart_id = '${cartId}';
-        `;
-        await db.sql(updateCartSql);
 
         return res.status(200).json({ 
+            success: true,
             message: `Product ID ${productId} removed from cart ${cartId}.`
         });
         
@@ -175,7 +164,7 @@ cartRouter.delete('/remove/:productId', async (req, res) => {
 // =========================================================
 // GET /items - GET ALL CART OBJECTS
 // =========================================================
-cartRouter.get('/items', async (req, res) => {
+cartRouter.get('/get', async (req, res) => {
     const db = req.db;
     const userId = req.userId;
 
@@ -201,8 +190,10 @@ cartRouter.get('/items', async (req, res) => {
         
         const cartItems = await db.sql(getItemsSql);
 
+        //check if cart is empty
         if (!cartItems || cartItems.length === 0) {
             return res.status(200).json({ 
+                success: false,
                 message: "Cart is empty.",
                 items: []
             });
@@ -210,6 +201,7 @@ cartRouter.get('/items', async (req, res) => {
 
         // Success response with the list of items
         return res.status(200).json({ 
+            success: true,
             message: `Found ${cartItems.length} items in cart.`,
             items: cartItems 
         });

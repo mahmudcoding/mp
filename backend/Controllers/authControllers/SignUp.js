@@ -38,9 +38,6 @@ export default async function signup(req, res) {
             `SELECT userId, email FROM users WHERE LOWER(email) = LOWER('${UserData.email}')`
         );
 
-        console.log('📋 Existing user query result:', existingUser.rows);
-        console.log('🔢 Number of existing users found:', existingUser.rows ? existingUser.rows.length : 0);
-
         // Check if any user with this email exists
         if (existingUser.rows && existingUser.rows.length > 0) {
             console.log('❌ User already exists with email:', UserData.email);
@@ -65,7 +62,7 @@ export default async function signup(req, res) {
                 const token = jwt.sign(
                     { userID: user.userId, email: user.email }, 
                     process.env.JWT_SECRET, 
-                    { expiresIn: "30m" }
+                    { expiresIn: "7d" }
                 );
 
                 return res.status(200).json({
